@@ -114,7 +114,7 @@ button { font: inherit; }
   .scr-map-stars { float: none; display: block; margin-top: 10px; }
 }
 
-/* Telas inicial e Como jogar migradas para React; Assuntos e Mapas ainda usam o menu legado. */
+/* As telas migradas para React ficam acima do menu legado. */
 #menu-html[hidden] { display: none !important; }
 .scr-react-menu {
   position: relative;
@@ -145,4 +145,15 @@ button { font: inherit; }
 .scr-subject-card strong {
   display: block;
   margin-top: 10px;
+}
+
+/* Mapas migrada para React; os dados e o início das partidas continuam no motor. */
+.scr-map-card {
+  appearance: none;
+  width: 100%;
+  font: inherit;
+}
+.scr-map-card h2,
+.scr-map-card p {
+  line-height: 1.35;
 }

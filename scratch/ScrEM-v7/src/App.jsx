@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import HomeScreen from './components/HomeScreen.jsx';
 import HowToPlayScreen from './components/HowToPlayScreen.jsx';
 import SubjectsScreen from './components/SubjectsScreen.jsx';
+import MapsScreen from './components/MapsScreen.jsx';
 import LegacyGame from './components/LegacyGame.jsx';
 
 export default function App() {
@@ -16,6 +17,7 @@ export default function App() {
           <HomeScreen active />
           <HowToPlayScreen />
           <SubjectsScreen />
+          <MapsScreen />
         </>
       )}
     </>

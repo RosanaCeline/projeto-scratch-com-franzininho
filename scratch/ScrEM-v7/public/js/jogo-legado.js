@@ -403,7 +403,31 @@
         const estrelas = mapas.reduce((s, m) => s + estrelasMapa(m), 0);
         const maxEstrelasAssunto = mapas.reduce((s, m) => s + maxEstrelas(m), 0);
         return { id: a.id, nome: a.nome, cor: a.cor, icone: a.icone, descricao: a.descricao || '', mapasConcluidos: feitos, totalMapas: mapas.length, estrelas, maxEstrelas: maxEstrelasAssunto, percentual: mapas.length ? feitos / mapas.length * 100 : 0 };
-      })
+      }),
+      assuntoAtual: ASSUNTOS[st.assunto] ? {
+        id: ASSUNTOS[st.assunto].id,
+        nome: ASSUNTOS[st.assunto].nome,
+        cor: ASSUNTOS[st.assunto].cor,
+        mapasDescricao: ASSUNTOS[st.assunto].mapas_desc || '',
+      } : null,
+      mapas: ASSUNTOS[st.assunto] ? mapasDoAssunto(st.assunto).map(m => {
+        const nivel = NIVEIS[m.nivel] || NIVEIS[1];
+        return {
+          id: m.id,
+          nome: m.nome,
+          tema: m.tema,
+          nivel: nivel.nome,
+          corNivel: nivel.cor,
+          fixo: m.fixo,
+          concluido: concluido(m),
+          missoesConcluidas: (progressoDe(m).estrelas || []).filter(e => e > 0).length,
+          totalMissoes: m.missoes.length,
+          missoesNecessarias: m.concluir,
+          limite: m.limite,
+          estrelas: estrelasMapa(m),
+          maxEstrelas: maxEstrelas(m),
+        };
+      }) : []
     };
   }
   let assinaturaReact = '';
@@ -426,6 +450,11 @@
       if (!Number.isInteger(indice) || !ASSUNTOS[indice]) return;
       st.assunto = indice;
       irPara('mapas');
+    },
+    iniciarMapa(id) {
+      const mapa = MAPA_POR_ID[id];
+      if (!mapa) return;
+      iniciarMapa(mapa);
     },
     alternarSom,
     telaCheia
@@ -1284,32 +1313,13 @@
   }
 
 
-  function telaMapasHTML() {
-    const a = ASSUNTOS[st.assunto];
-    const ms = mapasDoAssunto(st.assunto);
-    const cards = ms.map(m => {
-      const nv = NIVEIS[m.nivel] || NIVEIS[1];
-      const status = concluido(m) ? '<span class="scr-completed">✓ Concluído</span>' : '';
-      return `<button class="scr-card scr-map-card" type="button" data-action="mapa" data-map-id="${escapeHTML(m.id)}" style="--subject-color:${escapeHTML(a.cor)}">
-        <span class="scr-map-badges"><span class="scr-level" style="--level-color:${escapeHTML(nv.cor)}">${escapeHTML(nv.nome)}</span>${!m.fixo ? '<span class="scr-random">Cores sorteadas</span>' : ''}${status}</span>
-        <h2>${escapeHTML(m.nome)}</h2><p>${escapeHTML(m.tema)}</p>
-        <span class="scr-map-meta">Acerte ${m.concluir} de ${m.missoes.length} missões · até ${m.limite} passos</span>
-        <strong class="scr-map-stars">★ ${estrelasMapa(m)} de ${maxEstrelas(m)}</strong>
-      </button>`;
-    }).join('');
-    return `<section class="scr-page"><header class="scr-page-heading scr-map-heading" style="--subject-color:${escapeHTML(a.cor)}"><h1>${escapeHTML(a.nome)}</h1><p>${escapeHTML(a.mapas_desc)}</p></header>
-      ${ms.length ? `<div class="scr-map-grid">${cards}</div>` : '<p class="scr-empty">Em breve, mais mapas neste assunto.</p>'}
-      <footer class="scr-page-actions">${botaoMenu('Assuntos', 'mapas-voltar', 'secondary')}</footer></section>`;
-  }
-
   function renderizarMenuHTML() {
-    if (!menuHTML || !telaDeMenu() || st.tela === 'inicio' || st.tela === 'como' || st.tela === 'assuntos') return;
+    if (!menuHTML || !telaDeMenu() || st.tela === 'inicio' || st.tela === 'como' || st.tela === 'assuntos' || st.tela === 'mapas') return;
     const assinatura = `${st.tela}|${st.assunto}|${st.som}|${progressoMenu()}`;
     if (assinatura === assinaturaMenu) return;
     assinaturaMenu = assinatura;
     const telas = {
       inicio: telaInicioHTML,
-      mapas: telaMapasHTML
     };
     menuHTML.innerHTML = telas[st.tela]();
   }
@@ -1568,7 +1578,7 @@
       cv.style.display = 'none';
       // A tela inicial agora é renderizada pelo React. As demais telas
       // continuam temporariamente no menu legado até suas migrações.
-      if (menuHTML) menuHTML.hidden = st.tela === 'inicio' || st.tela === 'como' || st.tela === 'assuntos';
+      if (menuHTML) menuHTML.hidden = st.tela === 'inicio' || st.tela === 'como' || st.tela === 'assuntos' || st.tela === 'mapas';
       renderizarMenuHTML();
       return;
     }
@@ -1667,7 +1677,7 @@
       if (k.startsWith('Arrow')) {
         const seletorBotoes = st.tela === 'inicio'
           ? '.scr-react-menu button:not(:disabled)'
-          : st.tela === 'assuntos' ? '.scr-react-menu button:not(:disabled)' : '#menu-html button:not(:disabled)';
+          : st.tela === 'assuntos' || st.tela === 'mapas' ? '.scr-react-menu button:not(:disabled)' : '#menu-html button:not(:disabled)';
         const botoes = [...document.querySelectorAll(seletorBotoes)];
         if (botoes.length) {
           e.preventDefault();

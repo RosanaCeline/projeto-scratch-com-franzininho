@@ -1,10 +1,10 @@
 # ScrEM — migração React + JavaScript
 
-## Etapa 4: tela Assuntos como componente React
+## Etapa 5: tela Mapas como componente React
 
-A tela Assuntos foi migrada para `src/components/SubjectsScreen.jsx`. Os cartões são renderizados pelo React e recebem do motor os dados dos assuntos, o progresso dos mapas e as estrelas. Ao selecionar um assunto, o componente chama `ScrEMAPI.selecionarAssunto(indice)`, mantendo a navegação e as regras no motor original.
+A tela Mapas foi migrada para `src/components/MapsScreen.jsx`. Os cartões são renderizados pelo React e recebem do motor o assunto selecionado, os dados de cada mapa, o nível, o status de conclusão e as estrelas. Ao selecionar um cartão, o componente chama `ScrEMAPI.iniciarMapa(id)`, que delega ao motor original a inicialização da partida.
 
-As telas Início e Como jogar continuam migradas em seus componentes React. O motor legado não gera mais HTML para essas três telas; Mapas ainda permanece temporariamente no menu legado.
+As telas Início, Como jogar e Assuntos também permanecem como componentes React. O motor legado não gera mais HTML para essas telas nem para Mapas.
 
 ### Etapas anteriores: tela inicial e Como jogar
 
@@ -17,15 +17,16 @@ A tela inicial foi migrada para `src/components/HomeScreen.jsx`. Sua estrutura, 
 - Botões Começar, Como jogar, Som e Tela cheia.
 - Atalhos de teclado existentes.
 - Persistência do progresso e das preferências no `localStorage`.
-- O motor legado continua responsável pelas regras e pelas demais telas ainda não migradas.
+- O motor legado continua responsável pelas regras, inicialização das partidas, tabuleiro e tela de resultado.
 
 ### Integração React ↔ motor legado
 
-`public/js/jogo-legado.js` expõe uma ponte temporária em `window.ScrEMAPI`. Ela oferece um snapshot do estado da navegação, dos assuntos e do progresso, uma inscrição para receber atualizações e ações de navegação, seleção de assunto, som e tela cheia. O React não altera diretamente as regras nem o objeto interno do jogo.
+`public/js/jogo-legado.js` expõe uma ponte temporária em `window.ScrEMAPI`. Ela oferece um snapshot do estado da navegação, dos assuntos e do progresso, uma inscrição para receber atualizações e ações de navegação, seleção de assunto, início de mapa, som e tela cheia. O React não altera diretamente as regras nem o objeto interno do jogo.
 
 ### Arquivos principais alterados
 
 - `src/components/HomeScreen.jsx` — componente da tela inicial e prévia do tabuleiro.
+- `src/components/MapsScreen.jsx` — componente de seleção de mapas.
 - `src/App.jsx` — monta a tela inicial React junto do motor legado.
 - `src/components/LegacyGame.jsx` — informa ao React quando o motor terminou de carregar.
 - `src/styles/legacy.css` — reaproveita os estilos existentes e posiciona a tela React.
@@ -58,7 +59,6 @@ npm run build
 
 ## O que ainda não foi migrado
 
-- Mapas continua renderizado pelo menu legado.
 - O tabuleiro, o robô durante a missão e a tela de resultado continuam no Canvas.
 - As regras, animações da partida e persistência continuam no motor original.
 
