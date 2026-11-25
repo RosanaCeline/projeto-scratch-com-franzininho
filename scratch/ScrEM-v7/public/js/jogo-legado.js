@@ -427,7 +427,47 @@
           estrelas: estrelasMapa(m),
           maxEstrelas: maxEstrelas(m),
         };
-      }) : []
+      }) : [],
+      partida: st.tela === 'jogo' && st.mapa && st.L && st.missao ? (() => {
+        const simulacao = st.exec ? st.sim : simular(st.L, st.sequencia, st.alvos);
+        return {
+          mapa: { id: st.mapa.id, nome: st.mapa.nome, limite: st.mapa.limite, concluir: st.mapa.concluir },
+          assunto: (() => { const a = ASSUNTOS.find(x => x.id === st.mapa.assunto) || ASSUNTOS[0]; return { nome: a.nome, cor: a.cor }; })(),
+          missao: { texto: st.missao.texto, dica: st.missao.dica },
+          tentativas: st.tentativasMissao,
+          acertos: st.acertos,
+          streak: st.streak,
+          errosSeguidos: st.errosSeguidos,
+          limiteErrosDica: CONFIG.dicaAposErros,
+          dicaMostrada: st.dicaMostrada,
+          sequencia: st.sequencia.slice(),
+          maxComandos: MAX_CMD,
+          exec: st.exec ? { indice: st.exec.idx, custo: st.custoExec } : null,
+          ocupado: ocupado(),
+          posicao: st.pos,
+          direcao: st.dirVis,
+          humor: st.humor,
+          inicio: st.L.inicio,
+          celulas: st.L.tipo.map((tipo, i) => ({
+            indice: i,
+            tipo: st.L.obst[i] ? 'o' : tipo,
+            rotulo: st.L.rot[i] || '',
+            inicio: i === st.L.inicio,
+            visitada: st.visitas.includes(i),
+            alvo: st.alvos.includes(i)
+          })),
+          passos: simulacao ? simulacao.passos.map(p => ({ ...p })) : [],
+          custoPrevisto: simulacao?.custo ?? 0,
+          bloqueio: simulacao?.bloqueio ?? -1,
+          toast: st.toast?.texto || '',
+          modal: st.modal ? {
+            tipo: st.modal.tipo,
+            titulo: st.modal.titulo,
+            texto: st.modal.texto,
+            botoes: st.modal.botoes.map(b => ({ id: b.id, rotulo: b.rotulo, estilo: b.estilo }))
+          } : null
+        };
+      })() : null
     };
   }
   let assinaturaReact = '';
@@ -457,7 +497,17 @@
       iniciarMapa(mapa);
     },
     alternarSom,
-    telaCheia
+    telaCheia,
+    adicionarMovimento: addMov,
+    apagarComando: apagarUltimo,
+    limparComandos: limparTudo,
+    executar,
+    mostrarDica,
+    sair,
+    ativarBotaoModal(id) {
+      const botao = st.modal?.botoes.find(b => b.id === id);
+      if (botao && typeof botao.fn === 'function') botao.fn();
+    }
   };
 
   // ---------- primitivas ----------
@@ -1574,6 +1624,12 @@
 
   function desenhar(t) {
     UI = [];
+    if (st.tela === 'jogo') {
+      // A partida permanece no Canvas original para preservar fielmente
+      // o desenho, as transições e as animações do ScrEM.
+      if (menuHTML) menuHTML.hidden = true;
+      cv.style.display = 'block';
+    }
     if (telaDeMenu()) {
       cv.style.display = 'none';
       // A tela inicial agora é renderizada pelo React. As demais telas

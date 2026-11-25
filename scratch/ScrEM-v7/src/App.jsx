@@ -3,6 +3,8 @@ import HomeScreen from './components/HomeScreen.jsx';
 import HowToPlayScreen from './components/HowToPlayScreen.jsx';
 import SubjectsScreen from './components/SubjectsScreen.jsx';
 import MapsScreen from './components/MapsScreen.jsx';
+import GameScreen from './components/GameScreen.jsx';
+import FinishScreen from './components/FinishScreen.jsx';
 import LegacyGame from './components/LegacyGame.jsx';
 
 export default function App() {
@@ -18,6 +20,8 @@ export default function App() {
           <HowToPlayScreen />
           <SubjectsScreen />
           <MapsScreen />
+          <GameScreen />
+          <FinishScreen />
         </>
       )}
     </>
