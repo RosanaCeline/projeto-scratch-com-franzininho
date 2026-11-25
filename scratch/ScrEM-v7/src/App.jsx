@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import HomeScreen from './components/HomeScreen.jsx';
+import HowToPlayScreen from './components/HowToPlayScreen.jsx';
 import LegacyGame from './components/LegacyGame.jsx';
 
 export default function App() {
@@ -9,7 +10,12 @@ export default function App() {
   return (
     <>
       <LegacyGame onReady={marcarMotorPronto} />
-      <HomeScreen active={motorPronto} />
+      {motorPronto && (
+        <>
+          <HomeScreen active />
+          <HowToPlayScreen />
+        </>
+      )}
     </>
   );
 }

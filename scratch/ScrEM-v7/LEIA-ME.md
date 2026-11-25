@@ -1,6 +1,12 @@
 # ScrEM — migração React + JavaScript
 
-## Etapa 2: tela inicial como componente React
+## Etapa 3: tela Como jogar como componente React
+
+A tela Como jogar foi migrada para `src/components/HowToPlayScreen.jsx`. Ela usa os mesmos estilos existentes (`scr-page-heading`, `scr-how-grid`, `scr-how-card`, `scr-keyboard-card` e `scr-page-actions`) e mantém o texto e as ações da tela anterior. O custo do terreno amarelo é recebido pelo snapshot da API do motor, sem duplicar essa configuração no componente.
+
+A tela inicial continua migrada em `src/components/HomeScreen.jsx`. O motor legado não gera mais HTML para as telas Início e Como jogar; Assuntos e Mapas ainda permanecem no menu legado.
+
+### Etapa anterior: tela inicial como componente React
 
 A tela inicial foi migrada para `src/components/HomeScreen.jsx`. Sua estrutura, botões e prévia do tabuleiro agora são renderizados pelo React, usando as classes e os estilos visuais que já existiam no projeto.
 
@@ -52,7 +58,7 @@ npm run build
 
 ## O que ainda não foi migrado
 
-- Como jogar, Assuntos e Mapas continuam renderizados pelo menu legado.
+- Assuntos e Mapas continuam renderizados pelo menu legado.
 - O tabuleiro, o robô durante a missão e a tela de resultado continuam no Canvas.
 - As regras, animações da partida e persistência continuam no motor original.
 

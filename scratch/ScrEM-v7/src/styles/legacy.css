@@ -114,7 +114,7 @@ button { font: inherit; }
   .scr-map-stars { float: none; display: block; margin-top: 10px; }
 }
 
-/* Tela inicial migrada para React; as outras telas ainda usam o menu legado. */
+/* Telas inicial e Como jogar migradas para React; Assuntos e Mapas ainda usam o menu legado. */
 #menu-html[hidden] { display: none !important; }
 .scr-react-menu {
   position: relative;
@@ -125,7 +125,6 @@ button { font: inherit; }
 .scr-preview-robot {
   animation: scr-robot-float 840ms ease-in-out infinite alternate;
 }
-
 @keyframes scr-robot-float {
   from { transform: translateY(0); }
   to { transform: translateY(-4px); }

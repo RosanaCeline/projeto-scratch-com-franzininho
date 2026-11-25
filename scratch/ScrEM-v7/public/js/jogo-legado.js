@@ -392,6 +392,7 @@
     return {
       tela: st.tela,
       som: st.som,
+      custoChoque: CUSTO_CHOQUE,
       mapasConcluidos: MAPAS.filter(concluido).length,
       totalMapas: MAPAS.length,
       estrelas: MAPAS.reduce((s, m) => s + estrelasMapa(m), 0),
@@ -1270,20 +1271,6 @@
     </section>`;
   }
 
-  function telaComoHTML() {
-    const passos = [
-      ['Leia a missão', 'Ela diz qual casa com número o personagem precisa alcançar.'],
-      ['Monte o caminho', 'Use as setas ou WASD. Cada tecla é um passo para a casa ao lado.'],
-      ['Respeite as cores', `Vermelho perde o passo; azul escorrega; amarelo custa ${CUSTO_CHOQUE} passos; verde leva ao outro verde.`],
-      ['Ganhe estrelas', 'Quanto menos passos, mais estrelas. ★★★ é o melhor caminho possível.']
-    ];
-    return `<section class="scr-page">
-      <header class="scr-page-heading"><h1>Como jogar</h1></header>
-      <div class="scr-how-grid">${passos.map((p, i) => `<article class="scr-card scr-how-card"><span class="scr-step">${i + 1}</span><h2>${escapeHTML(p[0])}</h2><p>${escapeHTML(p[1])}</p></article>`).join('')}</div>
-      <aside class="scr-keyboard-card"><h2>Teclado</h2><p>Setas ou WASD: montar · Enter: executar · Backspace: desfazer · Delete: limpar · H: dica · Esc: sair</p></aside>
-      <footer class="scr-page-actions">${botaoMenu('Voltar', 'como-voltar', 'secondary')}${botaoMenu('Começar', 'como-comecar')}</footer>
-    </section>`;
-  }
 
   function telaAssuntosHTML() {
     const cards = ASSUNTOS.map((a, i) => {
@@ -1322,13 +1309,12 @@
   }
 
   function renderizarMenuHTML() {
-    if (!menuHTML || !telaDeMenu() || st.tela === 'inicio') return;
+    if (!menuHTML || !telaDeMenu() || st.tela === 'inicio' || st.tela === 'como') return;
     const assinatura = `${st.tela}|${st.assunto}|${st.som}|${progressoMenu()}`;
     if (assinatura === assinaturaMenu) return;
     assinaturaMenu = assinatura;
     const telas = {
       inicio: telaInicioHTML,
-      como: telaComoHTML,
       assuntos: telaAssuntosHTML,
       mapas: telaMapasHTML
     };
@@ -1589,7 +1575,7 @@
       cv.style.display = 'none';
       // A tela inicial agora é renderizada pelo React. As demais telas
       // continuam temporariamente no menu legado até suas migrações.
-      if (menuHTML) menuHTML.hidden = st.tela === 'inicio';
+      if (menuHTML) menuHTML.hidden = st.tela === 'inicio' || st.tela === 'como';
       renderizarMenuHTML();
       return;
     }
