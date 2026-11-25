@@ -600,6 +600,7 @@
   // ---------- navegação ----------
   function irPara(tela) {
     st.tela = tela;
+    assinaturaMenu = '';
     st.exec = null;
     st.modal = null;
     st.pendente = false;
@@ -1179,6 +1180,151 @@
     botao('jogo-apagar', 'Desfazer (⌫)', xe, k.y + 136, wb, 44, { estilo: 'secundario', fn: apagarUltimo, nav: false, desativado: dis || !st.sequencia.length });
     botao('jogo-limpar', 'Limpar (Del)', xe + wb + 16, k.y + 136, wb, 44, { estilo: 'secundario', fn: limparTudo, nav: false, desativado: dis || !st.sequencia.length });
   }
+  // ---------- menus em HTML (Etapa 2) ----------
+  const menuHTML = document.getElementById('menu-html');
+  let assinaturaMenu = '';
+  const escapeHTML = valor => String(valor ?? '').replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[c]);
+  const telaDeMenu = () => ['inicio', 'como', 'assuntos', 'mapas'].includes(st.tela);
+
+  function progressoMenu() {
+    return MAPAS.map(m => {
+      const p = progressoDe(m);
+      return `${m.id}:${p.concluido ? 1 : 0}:${(p.estrelas || []).join('')}`;
+    }).join('|');
+  }
+
+  function previewMenu() {
+    const obst = new Set([6, 7, 12, 17, 18]);
+    const tipos = { 3: 'vermelho', 11: 'azul', 14: 'amarelo', 4: 'verde', 24: 'verde' };
+    const casas = Array.from({ length: N * N }, (_, i) => {
+      const tipo = obst.has(i) ? 'obstaculo' : (tipos[i] || 'normal');
+      const rotulo = i === 9 ? '9' : '';
+      return `<span class="scr-preview-cell ${tipo}">${rotulo}</span>`;
+    }).join('');
+    const robo = [
+      '....rr....', '....oo....', '..oooooo..', '.oyyyyyyo.', '.owwwwwwo.',
+      '.owewwewo.', '.ocwoowco.', '..oooooo..', '..oyyyyo..', '..oyssyo..', '..og..go..'
+    ];
+    const cores = { o: '#0d0d6b', y: '#ffd23f', w: '#e8f6ff', e: '#0d0d6b', c: '#ff6fa0', r: '#e5484d', s: '#e0a800', g: '#6b6f9c' };
+    const pixels = robo.map(linha => [...linha].map(ch => `<i${ch === '.' ? '' : ` style="--pixel:${cores[ch]}"`}></i>`).join('')).join('');
+    return `<div class="scr-preview-card" aria-label="Prévia do tabuleiro">
+      <div class="scr-preview-grid">${casas}</div>
+      <div class="scr-preview-robot" aria-hidden="true"><span>${pixels}</span></div>
+    </div>`;
+  }
+
+  function botaoMenu(rotulo, acao, classe = 'primary') {
+    return `<button class="scr-button ${classe}" type="button" data-action="${acao}">${escapeHTML(rotulo)}</button>`;
+  }
+
+  function telaInicioHTML() {
+    const feitos = MAPAS.filter(concluido).length;
+    const est = MAPAS.reduce((s, m) => s + estrelasMapa(m), 0);
+    const maxE = MAPAS.reduce((s, m) => s + maxEstrelas(m), 0);
+    return `<section class="scr-page scr-home">
+      <div class="scr-home-copy">
+        <span class="scr-kicker">Pensamento computacional</span>
+        <h1>ScrEM</h1>
+        <p class="scr-lead">Programe o caminho do personagem, escolha as cores certas e resolva a missão de matemática.</p>
+        <p class="scr-progress">Mapas concluídos: <strong>${feitos} de ${MAPAS.length}</strong><span>·</span> Estrelas: <strong>${est} de ${maxE}</strong></p>
+        <div class="scr-actions">${botaoMenu('Começar', 'inicio-comecar')}${botaoMenu('Como jogar', 'inicio-como', 'secondary')}</div>
+        <p class="scr-shortcuts">Setas ou WASD: montar · Enter: executar · Backspace: desfazer · H: dica · F: tela cheia · M: som</p>
+      </div>
+      <div class="scr-home-art">${previewMenu()}</div>
+      <div class="scr-top-actions">${botaoMenu(st.som ? 'Som: ligado' : 'Som: desligado', 'som', 'ghost')}${botaoMenu('Tela cheia', 'fullscreen', 'ghost')}</div>
+    </section>`;
+  }
+
+  function telaComoHTML() {
+    const passos = [
+      ['Leia a missão', 'Ela diz qual casa com número o personagem precisa alcançar.'],
+      ['Monte o caminho', 'Use as setas ou WASD. Cada tecla é um passo para a casa ao lado.'],
+      ['Respeite as cores', `Vermelho perde o passo; azul escorrega; amarelo custa ${CUSTO_CHOQUE} passos; verde leva ao outro verde.`],
+      ['Ganhe estrelas', 'Quanto menos passos, mais estrelas. ★★★ é o melhor caminho possível.']
+    ];
+    return `<section class="scr-page">
+      <header class="scr-page-heading"><h1>Como jogar</h1></header>
+      <div class="scr-how-grid">${passos.map((p, i) => `<article class="scr-card scr-how-card"><span class="scr-step">${i + 1}</span><h2>${escapeHTML(p[0])}</h2><p>${escapeHTML(p[1])}</p></article>`).join('')}</div>
+      <aside class="scr-keyboard-card"><h2>Teclado</h2><p>Setas ou WASD: montar · Enter: executar · Backspace: desfazer · Delete: limpar · H: dica · Esc: sair</p></aside>
+      <footer class="scr-page-actions">${botaoMenu('Voltar', 'como-voltar', 'secondary')}${botaoMenu('Começar', 'como-comecar')}</footer>
+    </section>`;
+  }
+
+  function telaAssuntosHTML() {
+    const cards = ASSUNTOS.map((a, i) => {
+      const ms = mapasDoAssunto(i);
+      const feitos = ms.filter(concluido).length;
+      const est = ms.reduce((s, m) => s + estrelasMapa(m), 0);
+      const maxE = ms.reduce((s, m) => s + maxEstrelas(m), 0);
+      const frac = ms.length ? feitos / ms.length * 100 : 0;
+      return `<button class="scr-card scr-subject-card" type="button" data-action="assunto" data-index="${i}" style="--subject-color:${escapeHTML(a.cor)}">
+        <span class="scr-subject-icon">${escapeHTML(a.icone)}</span><h2>${escapeHTML(a.nome)}</h2>
+        <span class="scr-progress-track"><span style="width:${frac}%"></span></span>
+        <p>${feitos} de ${ms.length} mapas concluídos</p><strong>★ ${est} de ${maxE}${feitos === ms.length && ms.length ? ' · completo' : ''}</strong>
+      </button>`;
+    }).join('');
+    return `<section class="scr-page"><header class="scr-page-heading"><h1>Escolha um assunto</h1><p>Matemática · Ensino Médio</p></header>
+      <div class="scr-subject-grid">${cards}</div>
+      <footer class="scr-page-actions">${botaoMenu('Início', 'assuntos-voltar', 'secondary')}</footer></section>`;
+  }
+
+  function telaMapasHTML() {
+    const a = ASSUNTOS[st.assunto];
+    const ms = mapasDoAssunto(st.assunto);
+    const cards = ms.map(m => {
+      const nv = NIVEIS[m.nivel] || NIVEIS[1];
+      const status = concluido(m) ? '<span class="scr-completed">✓ Concluído</span>' : '';
+      return `<button class="scr-card scr-map-card" type="button" data-action="mapa" data-map-id="${escapeHTML(m.id)}" style="--subject-color:${escapeHTML(a.cor)}">
+        <span class="scr-map-badges"><span class="scr-level" style="--level-color:${escapeHTML(nv.cor)}">${escapeHTML(nv.nome)}</span>${!m.fixo ? '<span class="scr-random">Cores sorteadas</span>' : ''}${status}</span>
+        <h2>${escapeHTML(m.nome)}</h2><p>${escapeHTML(m.tema)}</p>
+        <span class="scr-map-meta">Acerte ${m.concluir} de ${m.missoes.length} missões · até ${m.limite} passos</span>
+        <strong class="scr-map-stars">★ ${estrelasMapa(m)} de ${maxEstrelas(m)}</strong>
+      </button>`;
+    }).join('');
+    return `<section class="scr-page"><header class="scr-page-heading scr-map-heading" style="--subject-color:${escapeHTML(a.cor)}"><h1>${escapeHTML(a.nome)}</h1><p>${escapeHTML(a.mapas_desc)}</p></header>
+      ${ms.length ? `<div class="scr-map-grid">${cards}</div>` : '<p class="scr-empty">Em breve, mais mapas neste assunto.</p>'}
+      <footer class="scr-page-actions">${botaoMenu('Assuntos', 'mapas-voltar', 'secondary')}</footer></section>`;
+  }
+
+  function renderizarMenuHTML() {
+    if (!menuHTML || !telaDeMenu()) return;
+    const assinatura = `${st.tela}|${st.assunto}|${st.som}|${progressoMenu()}`;
+    if (assinatura === assinaturaMenu) return;
+    assinaturaMenu = assinatura;
+    const telas = {
+      inicio: telaInicioHTML,
+      como: telaComoHTML,
+      assuntos: telaAssuntosHTML,
+      mapas: telaMapasHTML
+    };
+    menuHTML.innerHTML = telas[st.tela]();
+  }
+
+  if (menuHTML) {
+    menuHTML.addEventListener('click', e => {
+      const alvo = e.target.closest('[data-action]');
+      if (!alvo) return;
+      liberarAudio();
+      const acao = alvo.dataset.action;
+      if (acao === 'inicio-comecar' || acao === 'como-comecar') irPara('assuntos');
+      else if (acao === 'inicio-como') irPara('como');
+      else if (acao === 'como-voltar') irPara('inicio');
+      else if (acao === 'assuntos-voltar') irPara('inicio');
+      else if (acao === 'mapas-voltar') irPara('assuntos');
+      else if (acao === 'som') alternarSom();
+      else if (acao === 'fullscreen') telaCheia();
+      else if (acao === 'assunto') { st.assunto = Number(alvo.dataset.index); irPara('mapas'); }
+      else if (acao === 'mapa') {
+        const mapa = MAPA_POR_ID[alvo.dataset.mapId];
+        if (mapa) iniciarMapa(mapa);
+      }
+      assinaturaMenu = '';
+      renderizarMenuHTML();
+    });
+  }
+
   // ---------- telas de menu (responsivas, espaçamento de 4 em 4) ----------
   const larguraPainel = () => LW >= 1200;
 
@@ -1406,6 +1552,14 @@
 
   function desenhar(t) {
     UI = [];
+    if (telaDeMenu()) {
+      cv.style.display = 'none';
+      if (menuHTML) menuHTML.hidden = false;
+      renderizarMenuHTML();
+      return;
+    }
+    if (menuHTML) menuHTML.hidden = true;
+    cv.style.display = 'block';
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     ctx.fillStyle = CORES.fundo;
     ctx.fillRect(0, 0, W, H);
@@ -1491,6 +1645,21 @@
       if (k === 'Backspace') { e.preventDefault(); apagarUltimo(); return; }
       if (k === 'Delete' || k === 'c' || k === 'C') { e.preventDefault(); limparTudo(); return; }
       if (k === 'Escape') { e.preventDefault(); sair(); return; }
+      return;
+    }
+    if (telaDeMenu()) {
+      if (k === 'Escape' || k === 'Backspace') { e.preventDefault(); voltar(); return; }
+      if (k.startsWith('Arrow')) {
+        const botoes = [...(menuHTML?.querySelectorAll('button:not(:disabled)') || [])];
+        if (botoes.length) {
+          e.preventDefault();
+          const atual = botoes.indexOf(document.activeElement);
+          const proximo = k === 'ArrowRight' || k === 'ArrowDown' ? atual + 1 : atual - 1;
+          botoes[(proximo + botoes.length) % botoes.length].focus();
+        }
+        return;
+      }
+      // Enter e Espaço ficam com o comportamento nativo dos botões HTML.
       return;
     }
     const seta = TECLA_SETA[k] ? k : TECLA_WASD[k];

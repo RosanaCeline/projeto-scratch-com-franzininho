@@ -1,0 +1,2 @@
+IMPORTANTE: copie o arquivo dados.js original do ScrEM para esta pasta (public/js/dados.js).
+Ele deve definir CONFIG, ASSUNTOS e MAPAS. Não substitua o arquivo original por este aviso.

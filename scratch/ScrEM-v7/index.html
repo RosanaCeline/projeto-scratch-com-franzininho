@@ -1,30 +1,14 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="ScrEM: jogo de pensamento computacional em que o estudante monta o caminho do personagem para resolver missões de matemática.">
-  <meta name="theme-color" content="#eef0f7">
-  <title>ScrEM — Pensamento computacional</title>
-  <link rel="stylesheet" href="css/styles.css">
-</head>
-
-<body>
-  <main 
-    id="menu-html" 
-    class="scr-menu" 
-    aria-live="polite" 
-    aria-label="Menu do ScrEM"
-  >
-  </main>
-  <canvas id="jogo" class="jogo" role="img" aria-label="Jogo ScrEM: monte o caminho do personagem e resolva a missão">
-    Seu navegador não suporta o elemento canvas, necessário para jogar o ScrEM.
-  </canvas>
-  <noscript><p class="aviso-noscript">Ative o JavaScript para jogar o ScrEM.</p></noscript>
-  <script src="js/dados.js" defer></script>
-  <script src="js/estado.js" defer></script>
-  <script src="js/jogo.js" defer></script>
-</body>
-
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="ScrEM: jogo de pensamento computacional e matemática." />
+    <meta name="theme-color" content="#eef0f7" />
+    <title>ScrEM — Pensamento computacional</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
