@@ -129,3 +129,20 @@ button { font: inherit; }
   from { transform: translateY(0); }
   to { transform: translateY(-4px); }
 }
+
+/* Assuntos migrada para React; o motor continua fornecendo dados e progresso. */
+.scr-subject-card {
+  appearance: none;
+  width: 100%;
+  font: inherit;
+}
+.scr-subject-card p {
+  line-height: 1.45;
+}
+.scr-subject-card .scr-progress-track {
+  margin-top: 8px;
+}
+.scr-subject-card strong {
+  display: block;
+  margin-top: 10px;
+}

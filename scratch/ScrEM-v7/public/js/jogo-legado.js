@@ -396,7 +396,14 @@
       mapasConcluidos: MAPAS.filter(concluido).length,
       totalMapas: MAPAS.length,
       estrelas: MAPAS.reduce((s, m) => s + estrelasMapa(m), 0),
-      maxEstrelas: MAPAS.reduce((s, m) => s + maxEstrelas(m), 0)
+      maxEstrelas: MAPAS.reduce((s, m) => s + maxEstrelas(m), 0),
+      assuntos: ASSUNTOS.map((a, i) => {
+        const mapas = mapasDoAssunto(i);
+        const feitos = mapas.filter(concluido).length;
+        const estrelas = mapas.reduce((s, m) => s + estrelasMapa(m), 0);
+        const maxEstrelasAssunto = mapas.reduce((s, m) => s + maxEstrelas(m), 0);
+        return { id: a.id, nome: a.nome, cor: a.cor, icone: a.icone, descricao: a.descricao || '', mapasConcluidos: feitos, totalMapas: mapas.length, estrelas, maxEstrelas: maxEstrelasAssunto, percentual: mapas.length ? feitos / mapas.length * 100 : 0 };
+      })
     };
   }
   let assinaturaReact = '';
@@ -415,6 +422,11 @@
       return () => ouvintesReact.delete(ouvinte);
     },
     irPara,
+    selecionarAssunto(indice) {
+      if (!Number.isInteger(indice) || !ASSUNTOS[indice]) return;
+      st.assunto = indice;
+      irPara('mapas');
+    },
     alternarSom,
     telaCheia
   };
@@ -1214,7 +1226,7 @@
     botao('jogo-apagar', 'Desfazer (⌫)', xe, k.y + 136, wb, 44, { estilo: 'secundario', fn: apagarUltimo, nav: false, desativado: dis || !st.sequencia.length });
     botao('jogo-limpar', 'Limpar (Del)', xe + wb + 16, k.y + 136, wb, 44, { estilo: 'secundario', fn: limparTudo, nav: false, desativado: dis || !st.sequencia.length });
   }
-  // ---------- menus em HTML (Etapa 2) ----------
+  // ---------- menus em HTML temporários (Mapas ainda legado) ----------
   const menuHTML = document.getElementById('menu-html');
   let assinaturaMenu = '';
   const escapeHTML = valor => String(valor ?? '').replace(/[&<>"']/g, c => ({
@@ -1272,24 +1284,6 @@
   }
 
 
-  function telaAssuntosHTML() {
-    const cards = ASSUNTOS.map((a, i) => {
-      const ms = mapasDoAssunto(i);
-      const feitos = ms.filter(concluido).length;
-      const est = ms.reduce((s, m) => s + estrelasMapa(m), 0);
-      const maxE = ms.reduce((s, m) => s + maxEstrelas(m), 0);
-      const frac = ms.length ? feitos / ms.length * 100 : 0;
-      return `<button class="scr-card scr-subject-card" type="button" data-action="assunto" data-index="${i}" style="--subject-color:${escapeHTML(a.cor)}">
-        <span class="scr-subject-icon">${escapeHTML(a.icone)}</span><h2>${escapeHTML(a.nome)}</h2>
-        <span class="scr-progress-track"><span style="width:${frac}%"></span></span>
-        <p>${feitos} de ${ms.length} mapas concluídos</p><strong>★ ${est} de ${maxE}${feitos === ms.length && ms.length ? ' · completo' : ''}</strong>
-      </button>`;
-    }).join('');
-    return `<section class="scr-page"><header class="scr-page-heading"><h1>Escolha um assunto</h1><p>Matemática · Ensino Médio</p></header>
-      <div class="scr-subject-grid">${cards}</div>
-      <footer class="scr-page-actions">${botaoMenu('Início', 'assuntos-voltar', 'secondary')}</footer></section>`;
-  }
-
   function telaMapasHTML() {
     const a = ASSUNTOS[st.assunto];
     const ms = mapasDoAssunto(st.assunto);
@@ -1309,13 +1303,12 @@
   }
 
   function renderizarMenuHTML() {
-    if (!menuHTML || !telaDeMenu() || st.tela === 'inicio' || st.tela === 'como') return;
+    if (!menuHTML || !telaDeMenu() || st.tela === 'inicio' || st.tela === 'como' || st.tela === 'assuntos') return;
     const assinatura = `${st.tela}|${st.assunto}|${st.som}|${progressoMenu()}`;
     if (assinatura === assinaturaMenu) return;
     assinaturaMenu = assinatura;
     const telas = {
       inicio: telaInicioHTML,
-      assuntos: telaAssuntosHTML,
       mapas: telaMapasHTML
     };
     menuHTML.innerHTML = telas[st.tela]();
@@ -1575,7 +1568,7 @@
       cv.style.display = 'none';
       // A tela inicial agora é renderizada pelo React. As demais telas
       // continuam temporariamente no menu legado até suas migrações.
-      if (menuHTML) menuHTML.hidden = st.tela === 'inicio' || st.tela === 'como';
+      if (menuHTML) menuHTML.hidden = st.tela === 'inicio' || st.tela === 'como' || st.tela === 'assuntos';
       renderizarMenuHTML();
       return;
     }
@@ -1674,7 +1667,7 @@
       if (k.startsWith('Arrow')) {
         const seletorBotoes = st.tela === 'inicio'
           ? '.scr-react-menu button:not(:disabled)'
-          : '#menu-html button:not(:disabled)';
+          : st.tela === 'assuntos' ? '.scr-react-menu button:not(:disabled)' : '#menu-html button:not(:disabled)';
         const botoes = [...document.querySelectorAll(seletorBotoes)];
         if (botoes.length) {
           e.preventDefault();
