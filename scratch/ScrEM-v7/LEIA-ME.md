@@ -1,21 +1,37 @@
-# ScrEM — início da migração para React + JavaScript
+# ScrEM — migração React + JavaScript
 
-Esta é a primeira etapa da migração para React + Vite. A aplicação já inicia por uma raiz React (`src/main.jsx` / `src/App.jsx`) e o jogo legado é montado dentro do componente `LegacyGame`.
+## Etapa 2: tela inicial como componente React
 
-## O que foi aproveitado
+A tela inicial foi migrada para `src/components/HomeScreen.jsx`. Sua estrutura, botões e prévia do tabuleiro agora são renderizados pelo React, usando as classes e os estilos visuais que já existiam no projeto.
 
-- O motor da Etapa 2 (`jogo.js`), preservado como `public/js/jogo-legado.js`.
-- O estado separado da Etapa 1 (`estado.js`).
-- Os estilos da Etapa 2, mantidos temporariamente em `src/styles/legacy.css`.
-- As telas de navegação HTML/CSS da Etapa 2 continuam funcionando por meio do motor atual.
+### O que foi preservado
+
+- Texto, hierarquia visual, cores, cartões, botões e prévia 5×5 da tela inicial.
+- Indicadores de mapas concluídos e estrelas, calculados pelo motor original.
+- Botões Começar, Como jogar, Som e Tela cheia.
+- Atalhos de teclado existentes.
+- Persistência do progresso e das preferências no `localStorage`.
+- O motor legado continua responsável pelas regras e pelas demais telas ainda não migradas.
+
+### Integração React ↔ motor legado
+
+`public/js/jogo-legado.js` expõe uma ponte temporária em `window.ScrEMAPI`. Ela oferece um snapshot do estado da navegação e do progresso, uma inscrição para receber atualizações e ações de navegação/som/tela cheia. O React não altera diretamente as regras nem o objeto interno do jogo.
+
+### Arquivos principais alterados
+
+- `src/components/HomeScreen.jsx` — componente da tela inicial e prévia do tabuleiro.
+- `src/App.jsx` — monta a tela inicial React junto do motor legado.
+- `src/components/LegacyGame.jsx` — informa ao React quando o motor terminou de carregar.
+- `src/styles/legacy.css` — reaproveita os estilos existentes e posiciona a tela React.
+- `public/js/jogo-legado.js` — cria a ponte de integração e deixa de gerar a tela inicial antiga.
 
 ## Arquivo de dados necessário
 
-O `dados.js` original não estava disponível como arquivo nesta sessão. Copie-o sem alterações para:
+O `dados.js` original não está incluído neste pacote. Copie-o, sem alterações, para:
 
 `public/js/dados.js`
 
-Ele deve declarar `CONFIG`, `ASSUNTOS` e `MAPAS`, como no projeto original. O carregamento é sequencial: `dados.js` → `estado.js` → `jogo-legado.js`.
+Ele deve declarar `CONFIG`, `ASSUNTOS` e `MAPAS`. A ordem de carregamento é `dados.js` → `estado.js` → `jogo-legado.js`.
 
 ## Executar
 
@@ -26,7 +42,7 @@ npm install
 npm run dev
 ```
 
-Abra o endereço local mostrado pelo Vite (por padrão `http://localhost:5173`).
+Abra o endereço local mostrado pelo Vite (normalmente `http://localhost:5173`).
 
 Para verificar a compilação de produção:
 
@@ -34,26 +50,10 @@ Para verificar a compilação de produção:
 npm run build
 ```
 
-## Estrutura
+## O que ainda não foi migrado
 
-```text
-src/
-  App.jsx
-  main.jsx
-  components/
-    LegacyGame.jsx
-  styles/
-    app.css
-    legacy.css
-public/
-  js/
-    dados.js                 # copiar do projeto original
-    estado.js                # estado separado na Etapa 1
-    jogo-legado.js            # motor da Etapa 2, temporário
-```
+- Como jogar, Assuntos e Mapas continuam renderizados pelo menu legado.
+- O tabuleiro, o robô durante a missão e a tela de resultado continuam no Canvas.
+- As regras, animações da partida e persistência continuam no motor original.
 
-## Limite desta etapa
-
-React já controla a aplicação e o ciclo de carregamento do jogo, mas as telas de menu ainda são produzidas pelo código legado usando DOM. O Canvas continua responsável pela partida e pela tela de resultado. Isso é intencional: primeiro estabelecemos uma base React executável, depois migramos os menus para componentes React e, por último, o tabuleiro e a renderização da partida.
-
-Não apague `jogo-legado.js` até a migração das regras e da partida estar concluída e validada.
+Não remova `public/js/jogo-legado.js` enquanto essas partes ainda dependerem dele.

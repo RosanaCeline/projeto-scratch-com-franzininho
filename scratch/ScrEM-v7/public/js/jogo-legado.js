@@ -385,6 +385,39 @@
     if (st.som) tocar('clique');
   }
 
+  // ---------- ponte temporária para os componentes React ----------
+  // O motor continua dono das regras; React recebe apenas um snapshot e ações públicas.
+  const ouvintesReact = new Set();
+  function obterSnapshotReact() {
+    return {
+      tela: st.tela,
+      som: st.som,
+      mapasConcluidos: MAPAS.filter(concluido).length,
+      totalMapas: MAPAS.length,
+      estrelas: MAPAS.reduce((s, m) => s + estrelasMapa(m), 0),
+      maxEstrelas: MAPAS.reduce((s, m) => s + maxEstrelas(m), 0)
+    };
+  }
+  let assinaturaReact = '';
+  function publicarSnapshotReact(forcar = false) {
+    const snapshot = obterSnapshotReact();
+    const assinatura = JSON.stringify(snapshot);
+    if (!forcar && assinatura === assinaturaReact) return;
+    assinaturaReact = assinatura;
+    ouvintesReact.forEach(ouvinte => ouvinte(snapshot));
+  }
+  window.ScrEMAPI = {
+    getSnapshot: obterSnapshotReact,
+    subscribe(ouvinte) {
+      ouvintesReact.add(ouvinte);
+      ouvinte(obterSnapshotReact());
+      return () => ouvintesReact.delete(ouvinte);
+    },
+    irPara,
+    alternarSom,
+    telaCheia
+  };
+
   // ---------- primitivas ----------
   function rr(x, y, w, h, r) {
     const rad = Math.min(r, w / 2, h / 2);
@@ -1289,7 +1322,7 @@
   }
 
   function renderizarMenuHTML() {
-    if (!menuHTML || !telaDeMenu()) return;
+    if (!menuHTML || !telaDeMenu() || st.tela === 'inicio') return;
     const assinatura = `${st.tela}|${st.assunto}|${st.som}|${progressoMenu()}`;
     if (assinatura === assinaturaMenu) return;
     assinaturaMenu = assinatura;
@@ -1554,7 +1587,9 @@
     UI = [];
     if (telaDeMenu()) {
       cv.style.display = 'none';
-      if (menuHTML) menuHTML.hidden = false;
+      // A tela inicial agora é renderizada pelo React. As demais telas
+      // continuam temporariamente no menu legado até suas migrações.
+      if (menuHTML) menuHTML.hidden = st.tela === 'inicio';
       renderizarMenuHTML();
       return;
     }
@@ -1593,6 +1628,7 @@
     const dt = Math.min(64, agora - ultimo);
     ultimo = agora;
     atualizar(agora, dt);
+    publicarSnapshotReact();
     desenhar(agora);
     requestAnimationFrame(laco);
   }
@@ -1650,7 +1686,10 @@
     if (telaDeMenu()) {
       if (k === 'Escape' || k === 'Backspace') { e.preventDefault(); voltar(); return; }
       if (k.startsWith('Arrow')) {
-        const botoes = [...(menuHTML?.querySelectorAll('button:not(:disabled)') || [])];
+        const seletorBotoes = st.tela === 'inicio'
+          ? '.scr-react-menu button:not(:disabled)'
+          : '#menu-html button:not(:disabled)';
+        const botoes = [...document.querySelectorAll(seletorBotoes)];
         if (botoes.length) {
           e.preventDefault();
           const atual = botoes.indexOf(document.activeElement);

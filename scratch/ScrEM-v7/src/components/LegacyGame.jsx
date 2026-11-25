@@ -32,10 +32,14 @@ function carregarScript(src) {
   });
 }
 
-export default function LegacyGame() {
+export default function LegacyGame({ onReady }) {
   const [erro, setErro] = useState('');
   const [carregado, setCarregado] = useState(false);
   const inicializado = useRef(false);
+
+  useEffect(() => {
+    if (carregado) onReady?.();
+  }, [carregado, onReady]);
 
   useEffect(() => {
     if (inicializado.current) return;
