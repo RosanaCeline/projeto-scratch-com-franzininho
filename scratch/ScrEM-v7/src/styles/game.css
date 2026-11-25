@@ -1,0 +1,1059 @@
+/* =========================================
+   SCR EM — TELA DE JOGO
+   Reproduz o visual do canvas original (jogo.js)
+   Paleta: navy #0d0d6b · muted #6b6f9c · linha #d9dce6 · fundo #eef0f7
+========================================= */
+
+.scr-game {
+  min-height: 100vh;
+  padding: 24px clamp(16px, 2.5vw, 40px) 40px;
+  color: #0d0d6b;
+  font-family: "Segoe UI", "Helvetica Neue", Roboto, Arial, system-ui, sans-serif;
+  background-color: #eef0f7;
+  /* fundo pontilhado do canvas (fundoPontilhado) */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect x='18' y='18' width='3' height='3' fill='%230d0d6b' fill-opacity='.06'/%3E%3C/svg%3E");
+}
+
+/* =========================================
+   BOTÕES
+========================================= */
+
+.scr-game .scr-button {
+  border: 0;
+  border-radius: 22px;
+  background: #0d0d6b;
+  box-shadow: 0 5px 0 #06063a;
+  color: #fff;
+  font-family: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+
+.scr-game .scr-button:hover:not(:disabled) {
+  background: #1c1c8a;
+}
+
+.scr-game .scr-button:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #06063a;
+}
+
+/* destaque (amarelo): Executar e Ver dica */
+.scr-game .scr-button.highlight {
+  background: #ffd23f;
+  box-shadow: 0 5px 0 #e0a800;
+  color: #0d0d6b;
+}
+
+.scr-game .scr-button.highlight:hover:not(:disabled) {
+  background: #ffe066;
+}
+
+.scr-game .scr-button.highlight:active:not(:disabled) {
+  box-shadow: 0 1px 0 #e0a800;
+}
+
+.scr-game .scr-button.secondary {
+  border: 3px solid #0d0d6b;
+  background: #fff;
+  box-shadow: none;
+  color: #0d0d6b;
+}
+
+.scr-game .scr-button.secondary:hover:not(:disabled) {
+  background: #f3f5ff;
+}
+
+.scr-game .scr-button.ghost {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #0d0d6b;
+}
+
+.scr-game .scr-button:disabled {
+  border: 0;
+  background: #e3e6f1;
+  box-shadow: 0 4px 0 #d0d4e4;
+  color: #8f94b8;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* foco do teclado: anel amarelo, como no canvas */
+.scr-game button:focus-visible {
+  outline: 4px solid #ffd23f;
+  outline-offset: 3px;
+}
+
+/* =========================================
+   CABEÇALHO
+========================================= */
+
+.scr-game-header {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  max-width: 2200px;
+  margin: 0 auto 20px;
+}
+
+.scr-game-header > .scr-button {
+  min-width: 160px;
+  min-height: 60px;
+  font-size: 24px;
+}
+
+.scr-game-progress {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  min-width: 0;
+}
+
+.scr-game-progress-text {
+  display: grid;
+  gap: 2px;
+}
+
+.scr-game-progress-text strong {
+  font-size: 32px;
+  font-weight: 900;
+  line-height: 1.15;
+}
+
+.scr-game-progress-text span {
+  color: #6b6f9c;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.scr-game-dots {
+  display: flex;
+  gap: 12px;
+}
+
+.scr-game-dots i {
+  width: 20px;
+  height: 20px;
+  border: 3px solid #0d0d6b;
+  border-radius: 50%;
+}
+
+.scr-game-dots i.done {
+  border-color: #1f9d61;
+  background: #1f9d61;
+}
+
+.scr-game-streak {
+  padding: 14px 18px;
+  border-radius: 24px;
+  background: #ffd23f;
+  color: #0d0d6b;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.scr-game-header-actions {
+  display: flex;
+  gap: 16px;
+  margin-left: auto;
+}
+
+.scr-game-header-actions .scr-button {
+  min-width: 120px;
+  min-height: 60px;
+  padding: 0 24px;
+  font-size: 24px;
+}
+
+/* =========================================
+   CARTÕES (cartao() do canvas)
+========================================= */
+
+.scr-game-mission,
+.scr-game-board-card,
+.scr-game-panel {
+  border: 2px solid #d9dce6;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 5px 0 rgba(13, 13, 107, .07);
+}
+
+/* =========================================
+   MISSÃO
+========================================= */
+
+.scr-game-mission {
+  position: relative;
+  max-width: 2200px;
+  min-height: 140px;
+  margin: 0 auto 20px;
+  padding: 20px 24px 22px;
+  text-align: center;
+}
+
+.scr-game-mission-meta {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 24px;
+}
+
+.scr-game-mission-meta > span {
+  padding: 7px 18px;
+  border-radius: 16px;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.scr-game-mission-meta small {
+  color: #6b6f9c;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.scr-game-mission h1 {
+  margin: 4px auto 0;
+  font-size: clamp(26px, 2.6vw, 40px);
+  line-height: 1.2;
+  font-weight: 800;
+}
+
+.scr-game-hint {
+  display: inline-block;
+  margin: 10px 0 0;
+  padding: 7px 20px;
+  border-radius: 16px;
+  background: #fff1ad;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.scr-game-mission .scr-button.highlight {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  width: 200px;
+  min-height: 40px;
+  padding: 0;
+  border-radius: 20px;
+  font-size: 17px;
+}
+
+/* =========================================
+   LAYOUT PRINCIPAL
+========================================= */
+
+.scr-game-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 16px;
+  max-width: 2200px;
+  margin: 0 auto;
+}
+
+/* =========================================
+   TABULEIRO
+========================================= */
+
+.scr-game-board-card {
+  min-width: 0;
+  padding: 24px;
+}
+
+.scr-game-board {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--grid-size), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--grid-size), minmax(0, 1fr));
+  gap: 2%;
+  width: min(100%, 820px);
+  aspect-ratio: 1;
+  margin: 0 auto;
+
+  /* permite usar cqw (% da largura do tabuleiro) nas casas */
+  container-type: inline-size;
+}
+
+/* As células participam diretamente do grid do tabuleiro. */
+.scr-game-cells {
+  display: contents;
+}
+
+/* ---------- casa base (tipo "n") ---------- */
+
+.scr-game-cell,
+.scr-game-legend-swatch {
+  overflow: hidden;
+  border-radius: 16%;
+  background-color: #f2f4fb;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+.scr-game-cell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+  border: max(1.5px, calc(var(--cel) * .02)) solid #d9dce6;
+  color: #0d0d6b;
+  font-weight: 800;
+}
+
+/* rótulo da casa: 36% do tamanho da casa */
+.scr-game-cell > span {
+  position: relative;
+  z-index: 1;
+  font-size: calc(var(--cel) * .36 * var(--fit, 1));
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* "INÍCIO" a 82% da altura da casa */
+.scr-game-cell > small {
+  position: absolute;
+  z-index: 1;
+  top: 82%;
+  right: 0;
+  left: 0;
+  transform: translateY(-50%);
+  color: #0d0d6b; /* mesma cor da trilha do robô */
+  font-size: calc(var(--cel) * .15);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: .02em;
+  text-align: center;
+}
+
+.scr-game-cell.visited.terrain-n {
+  border-color: #f2c94c;
+  background-color: #fff1b0;
+}
+
+/* =========================================
+   TERRENOS
+   Cada padrão é o mesmo desenho em pixels do canvas
+   (grade 12×12, cor do terreno a 30% de opacidade).
+========================================= */
+
+/* casas coloridas: borda mais grossa (3/100 da casa) */
+.scr-game-cell.terrain-v,
+.scr-game-cell.terrain-a,
+.scr-game-cell.terrain-y,
+.scr-game-cell.terrain-g {
+  border-width: max(2px, calc(var(--cel) * .03));
+}
+
+/* Obstáculo: tijolos */
+.scr-game-cell.terrain-o,
+.scr-game-legend-swatch.terrain-o {
+  border-color: #4f5385;
+  background-color: #6b6f9c;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%238c91c6' d='M.6 .6h4.6v1.6H.6zM6.6 .6h4.6v1.6H6.6zM0 3.6h2.2v1.6H0zM3.6 3.6h4.6v1.6H3.6zM9.6 3.6h2.4v1.6H9.6zM.6 6.6h4.6v1.6H.6zM6.6 6.6h4.6v1.6H6.6zM0 9.6h2.2v1.6H0zM3.6 9.6h4.6v1.6H3.6zM9.6 9.6h2.4v1.6H9.6z'/%3E%3C/svg%3E");
+}
+
+/* Vermelho: X */
+.scr-game-cell.terrain-v,
+.scr-game-legend-swatch.terrain-v {
+  border-color: #e5484d;
+  background-color: #ffdcdd;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' shape-rendering='crispEdges'%3E%3Cpath fill='%23e5484d' fill-opacity='.3' d='M1 1h1v1H1zM2 2h1v1H2zM3 3h1v1H3zM4 4h1v1H4zM5 5h1v1H5zM6 6h1v1H6zM7 7h1v1H7zM8 8h1v1H8zM9 9h1v1H9zM10 10h1v1H10zM10 1h1v1H10zM9 2h1v1H9zM8 3h1v1H8zM7 4h1v1H7zM6 5h1v1H6zM5 6h1v1H5zM4 7h1v1H4zM3 8h1v1H3zM2 9h1v1H2zM1 10h1v1H1z'/%3E%3C/svg%3E");
+}
+
+/* Azul: ondas */
+.scr-game-cell.terrain-a,
+.scr-game-legend-swatch.terrain-a {
+  border-color: #4aa8ff;
+  background-color: #d2ebff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' shape-rendering='crispEdges'%3E%3Cpath fill='%234aa8ff' fill-opacity='.3' d='M0 3h2v1H0zM4 3h2v1H4zM8 3h2v1H8zM2 8h2v1H2zM6 8h2v1H6zM10 8h2v1H10z'/%3E%3C/svg%3E");
+}
+
+/* Amarelo: faíscas */
+.scr-game-cell.terrain-y,
+.scr-game-legend-swatch.terrain-y {
+  border-color: #e0a800;
+  background-color: #fff1ad;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' shape-rendering='crispEdges'%3E%3Cpath fill='%23e0a800' fill-opacity='.3' d='M1 1h1v1H1zM10 1h1v1H10zM5 4h1v1H5zM1 10h1v1H1zM10 10h1v1H10zM6 8h1v1H6z'/%3E%3C/svg%3E");
+}
+
+/* Verde: anel de portal */
+.scr-game-cell.terrain-g,
+.scr-game-legend-swatch.terrain-g {
+  border-color: #1f9d61;
+  background-color: #caf6df;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' shape-rendering='crispEdges'%3E%3Cpath fill='%231f9d61' fill-opacity='.3' d='M4 1h4v1H4zM4 10h4v1H4zM3 2h1v1H3zM8 2h1v1H8zM3 9h1v1H3zM8 9h1v1H8zM2 3h1v1H2zM9 3h1v1H9zM2 8h1v1H2zM9 8h1v1H9zM1 4h1v4H1zM10 4h1v4h-1z'/%3E%3C/svg%3E");
+}
+
+/* =========================================
+   TRILHA
+========================================= */
+
+.scr-game-path {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.scr-game-path text {
+  fill: #fff;
+  font-family: inherit;
+  font-weight: 900;
+}
+
+/* =========================================
+   ROBÔ
+   Um quadrado do tamanho de UMA casa, posicionado por
+   left/top em % do tabuleiro e deslizando entre casas.
+   O sprite mede 80,6% da casa (10 pixels de cel/12,4).
+========================================= */
+
+.scr-game-robot-position {
+  position: absolute;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  transition: left 200ms ease-in-out, top 200ms ease-in-out;
+}
+
+.scr-game-robot-position.instant {
+  transition: none;
+}
+
+.scr-game-robot-art {
+  display: block;
+  width: 80.65%;
+  height: auto;
+  aspect-ratio: 10 / 11;
+  overflow: visible;
+}
+
+/* balanço ao andar (±0,5 pixel do sprite) */
+.scr-game-robot-art.walking {
+  animation: scr-robot-bob 345ms ease-in-out infinite alternate;
+}
+
+@keyframes scr-robot-bob {
+  from { transform: translateY(-4.5%); }
+  to { transform: translateY(4.5%); }
+}
+
+/* =========================================
+   TEXTOS FLUTUANTES
+   Sobem da casa do efeito e somem (1100 ms), como no canvas.
+   O wrapper tem o tamanho de uma casa; o texto anima o "top" em %.
+========================================= */
+
+.scr-game-float {
+  position: absolute;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.scr-game-float > span {
+  position: absolute;
+  left: 50%;
+  top: 5%;
+  transform: translate(-50%, -50%);
+  font-size: calc(var(--cel) * .17);
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  text-shadow: 0 0 3px #fff, 0 0 3px #fff;
+  animation: scr-float-up 1100ms linear forwards;
+}
+
+@keyframes scr-float-up {
+  from { top: 5%; opacity: 1; }
+  to { top: -45%; opacity: 0; }
+}
+
+/* =========================================
+   INFORMAÇÕES DO TABULEIRO
+========================================= */
+
+.scr-game-board-info {
+  margin: 18px 0 0;
+  color: #6b6f9c;
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* =========================================
+   PAINÉIS LATERAIS
+========================================= */
+
+.scr-game-sidebar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  min-width: 0;
+}
+
+.scr-game-panel {
+  min-width: 0;
+  padding: 22px 28px;
+}
+
+.scr-game-panel h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 900;
+}
+
+/* ---------- Seu caminho ---------- */
+
+.scr-game-panel-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.scr-game-panel-heading h2 {
+  font-size: 26px;
+}
+
+.scr-game-panel-heading span {
+  color: #6b6f9c;
+  font-size: 19px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.scr-game-empty-commands {
+  margin: 38px 0 18px;
+  color: #6b6f9c;
+  font-size: 22px;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* até 20 comandos: duas linhas de 10 chips de 60px */
+.scr-game-command-list {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 60px));
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.scr-game-command-list > span {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  width: 100%;
+  aspect-ratio: 1;
+  border: 2px solid #d9dce6;
+  border-radius: 12px;
+  background: #fff;
+  font-size: clamp(20px, 2vw, 32px);
+  font-weight: 900;
+}
+
+.scr-game-command-list > span.current {
+  border-width: 3px;
+  border-color: #0d0d6b;
+  background: #ffd23f;
+}
+
+.scr-game-command-list > span.executed {
+  background: #dff3e9;
+}
+
+.scr-game-command-list > span > i {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+/* ---------- Legenda ---------- */
+
+.scr-game-legend-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 16px;
+  margin-top: 12px;
+}
+
+.scr-game-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.scr-game-legend-swatch {
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  border: 2px solid #d9dce6;
+}
+
+.scr-game-legend-item strong,
+.scr-game-legend-item small {
+  display: block;
+}
+
+.scr-game-legend-item strong {
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.scr-game-legend-item small {
+  margin-top: 2px;
+  color: #6b6f9c;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.scr-game-obstacle-note {
+  margin: 12px 0 0;
+  color: #6b6f9c;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* ---------- Controles ---------- */
+
+.scr-game-controls {
+  display: grid;
+  grid-template-columns: 184px minmax(0, 1fr);
+  align-items: start;
+  gap: 24px;
+  padding: 24px 28px;
+}
+
+.scr-game-direction-pad {
+  display: grid;
+  grid-template-columns: repeat(3, 56px);
+  grid-template-rows: repeat(2, 56px);
+  gap: 8px;
+}
+
+.scr-game-direction-pad button {
+  border: 3px solid #0d0d6b;
+  border-radius: 22px;
+  background: #fff;
+  color: #0d0d6b;
+  font-family: inherit;
+  font-size: 24px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background .15s ease, transform .15s ease;
+}
+
+.scr-game-direction-pad button:hover:not(:disabled) {
+  background: #f3f5ff;
+}
+
+.scr-game-direction-pad button:active:not(:disabled) {
+  transform: translateY(3px);
+}
+
+.scr-game-direction-pad button:first-child {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.scr-game-direction-pad button:nth-child(2) {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.scr-game-direction-pad button:nth-child(3) {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.scr-game-direction-pad button:nth-child(4) {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.scr-game-direction-pad button:disabled {
+  border-color: #e3e6f1;
+  background: #e3e6f1;
+  color: #8f94b8;
+  cursor: not-allowed;
+}
+
+.scr-game-action-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.scr-game-action-buttons .scr-button {
+  min-height: 44px;
+  padding: 0 10px;
+  border-radius: 22px;
+  font-size: 18px;
+}
+
+/* Executar: botão grande, ocupa a linha toda */
+.scr-game-action-buttons .scr-button:first-child {
+  grid-column: 1 / -1;
+  min-height: 96px;
+  border-radius: 22px;
+  font-size: 30px;
+}
+
+/* =========================================
+   NOTIFICAÇÕES
+========================================= */
+
+.scr-game-toast {
+  position: fixed;
+  z-index: 10;
+  top: 22%;
+  left: 50%;
+  max-width: calc(100vw - 32px);
+  padding: 8px 28px;
+  transform: translateX(-50%);
+  border: 2px solid #0d0d6b;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* =========================================
+   MODAL (card 840×480 com o robô no topo)
+========================================= */
+
+.scr-game-modal-backdrop {
+  position: fixed;
+  z-index: 30;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(13, 13, 107, .38);
+}
+
+.scr-game-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(840px, 100%);
+  min-height: 480px;
+  padding: 40px 40px 32px;
+  border-radius: 40px;
+  background: #fff;
+  box-shadow: 0 12px 0 rgba(6, 6, 58, .35);
+  text-align: center;
+}
+
+.scr-game-modal-robot {
+  width: 50px;
+  margin-bottom: 20px;
+}
+
+.scr-game-modal h2 {
+  margin: 0 0 14px;
+  font-size: clamp(30px, 4vw, 46px);
+  font-weight: 900;
+}
+
+.scr-game-modal p {
+  margin: 0 0 6px;
+  max-width: 700px;
+  color: #6b6f9c;
+  font-size: clamp(18px, 2vw, 26px);
+  font-weight: 500;
+  line-height: 1.45;
+  white-space: pre-line;
+}
+
+.scr-game-modal-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: auto;
+  padding-top: 24px;
+}
+
+.scr-game-modal-actions .scr-button {
+  min-width: 340px;
+  min-height: 84px;
+  font-size: 30px;
+}
+
+.scr-game button:focus {
+  outline: 4px solid #ffd23f;
+  outline-offset: 3px;
+}
+
+/* =========================================
+   DESKTOP — A PARTIR DE 1200px
+========================================= */
+
+@media (min-width: 1200px) {
+  .scr-game-layout {
+    grid-template-columns: minmax(0, 1fr) 792px;
+    gap: 32px;
+    align-items: stretch;
+  }
+
+  .scr-game-board-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: calc(100vh - 284px);
+    padding: 40px;
+  }
+
+  .scr-game-board {
+    flex: 0 0 auto;
+    width: min(100%, calc(100vh - 364px), calc(100vw - 944px));
+    max-width: none;
+  }
+
+  .scr-game-sidebar {
+    grid-template-rows: 196px 184px minmax(184px, 1fr);
+  }
+}
+
+/* =========================================
+   TABLETS
+========================================= */
+
+@media (max-width: 1199px) {
+  .scr-game-board-card {
+    padding: 24px;
+  }
+
+  .scr-game-board {
+    width: min(100%, 720px);
+  }
+}
+
+/* =========================================
+   CELULARES
+========================================= */
+
+@media (max-width: 680px) {
+  .scr-game {
+    padding: 12px 10px 28px;
+  }
+
+  .scr-game-header {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .scr-game-header > .scr-button {
+    min-width: 82px;
+    min-height: 46px;
+    padding: 0 12px;
+    font-size: 16px;
+  }
+
+  .scr-game-progress {
+    flex: 1;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+  }
+
+  .scr-game-progress-text strong {
+    font-size: 20px;
+  }
+
+  .scr-game-progress-text span {
+    font-size: 14px;
+  }
+
+  .scr-game-dots {
+    gap: 8px;
+  }
+
+  .scr-game-dots i {
+    width: 14px;
+    height: 14px;
+    border-width: 2px;
+  }
+
+  .scr-game-streak {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .scr-game-header-actions {
+    width: 100%;
+    margin-left: 0;
+    gap: 10px;
+  }
+
+  .scr-game-header-actions .scr-button {
+    flex: 1;
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .scr-game-mission {
+    padding: 14px 12px;
+  }
+
+  .scr-game-mission-meta {
+    gap: 12px;
+  }
+
+  .scr-game-mission-meta > span,
+  .scr-game-mission-meta small,
+  .scr-game-hint {
+    font-size: 14px;
+  }
+
+  .scr-game-mission h1 {
+    font-size: 22px;
+  }
+
+  .scr-game-mission .scr-button.highlight {
+    position: static;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .scr-game-board-card {
+    padding: 10px;
+  }
+
+  .scr-game-board-info {
+    font-size: 14px;
+  }
+
+  .scr-game-panel {
+    padding: 16px;
+  }
+
+  .scr-game-panel h2,
+  .scr-game-panel-heading h2 {
+    font-size: 20px;
+  }
+
+  .scr-game-panel-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .scr-game-panel-heading span {
+    font-size: 13px;
+    text-align: left;
+  }
+
+  .scr-game-command-list {
+    gap: 5px;
+  }
+
+  .scr-game-command-list > span {
+    border-radius: 8px;
+    font-size: 18px;
+  }
+
+  .scr-game-command-list > span > i {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scr-game-legend-grid {
+    gap: 12px 8px;
+  }
+
+  .scr-game-legend-swatch {
+    flex-basis: 30px;
+    width: 30px;
+    height: 30px;
+  }
+
+  .scr-game-legend-item {
+    gap: 8px;
+  }
+
+  .scr-game-legend-item strong {
+    font-size: 14px;
+  }
+
+  .scr-game-legend-item small,
+  .scr-game-obstacle-note {
+    font-size: 11px;
+  }
+
+  .scr-game-controls {
+    grid-template-columns: 136px minmax(0, 1fr);
+    gap: 10px;
+    padding: 16px 10px;
+  }
+
+  .scr-game-direction-pad {
+    grid-template-columns: repeat(3, 40px);
+    grid-template-rows: repeat(2, 40px);
+    gap: 8px 6px;
+  }
+
+  .scr-game-direction-pad button {
+    border-width: 2px;
+    border-radius: 14px;
+    font-size: 20px;
+  }
+
+  .scr-game-action-buttons {
+    gap: 8px;
+  }
+
+  .scr-game-action-buttons .scr-button {
+    min-height: 40px;
+    font-size: 13px;
+  }
+
+  .scr-game-action-buttons .scr-button:first-child {
+    min-height: 56px;
+    font-size: 17px;
+  }
+
+  .scr-game-modal {
+    min-height: 0;
+    padding: 28px 18px 24px;
+    border-radius: 28px;
+  }
+
+  .scr-game-modal-actions {
+    width: 100%;
+  }
+
+  .scr-game-modal-actions .scr-button {
+    width: 100%;
+    min-width: 0;
+    min-height: 60px;
+    font-size: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scr-game-robot-position {
+    transition: none;
+  }
+
+  .scr-game-robot-art.walking {
+    animation: none;
+  }
+}

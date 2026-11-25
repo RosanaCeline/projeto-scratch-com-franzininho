@@ -1,0 +1,204 @@
+/* =========================================
+   SCR EM — TELA "MAPA CONCLUÍDO"
+   Reproduz telaFim() do canvas original
+========================================= */
+
+.scr-finish-screen {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 40px clamp(16px, 3vw, 40px);
+  color: #0d0d6b;
+  font-family: "Segoe UI", "Helvetica Neue", Roboto, Arial, system-ui, sans-serif;
+  background-color: #eef0f7;
+  /* fundo pontilhado do canvas */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect x='18' y='18' width='3' height='3' fill='%230d0d6b' fill-opacity='.06'/%3E%3C/svg%3E");
+}
+
+.scr-finish-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  text-align: center;
+}
+
+/* ---------- título ---------- */
+
+.scr-finish-content h1 {
+  margin: 0;
+  font-size: clamp(44px, 6vw, 88px);
+  font-weight: 900;
+  line-height: 1.05;
+}
+
+.scr-finish-map-name {
+  margin: 14px 0 0;
+  color: #6b6f9c;
+  font-size: clamp(22px, 2.4vw, 36px);
+  font-weight: 600;
+}
+
+/* ---------- cartões de estatística ---------- */
+
+.scr-finish-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 370px));
+  justify-content: center;
+  gap: 24px;
+  width: 100%;
+  margin-top: 40px;
+}
+
+.scr-finish-stat {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 24px;
+  min-height: 200px;
+  padding: 20px 24px;
+  border: 2px solid #d9dce6;
+  border-radius: 28px;
+  background: #fff;
+  box-shadow: 0 5px 0 rgba(13, 13, 107, .07);
+}
+
+.scr-finish-stat span {
+  color: #6b6f9c;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.scr-finish-stat strong {
+  font-size: clamp(40px, 4.2vw, 60px);
+  font-weight: 900;
+  line-height: 1;
+}
+
+/* ---------- mensagem ---------- */
+
+.scr-finish-message {
+  margin: 44px 0 0;
+  font-size: clamp(20px, 2vw, 28px);
+  font-weight: 700;
+}
+
+/* ---------- botões ---------- */
+
+.scr-finish-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 280px));
+  justify-content: center;
+  gap: 24px;
+  width: 100%;
+  margin-top: 48px;
+}
+
+.scr-finish-screen .scr-button {
+  min-height: 88px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 22px;
+  background: #0d0d6b;
+  box-shadow: 0 5px 0 #06063a;
+  color: #fff;
+  font-family: inherit;
+  font-size: 30px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+
+.scr-finish-screen .scr-button:hover:not(:disabled) {
+  background: #1c1c8a;
+}
+
+.scr-finish-screen .scr-button:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #06063a;
+}
+
+/* "Próximo pendente": botão de destaque (amarelo), como no canvas */
+.scr-finish-actions .scr-button:nth-child(2) {
+  background: #ffd23f;
+  box-shadow: 0 5px 0 #e0a800;
+  color: #0d0d6b;
+}
+
+.scr-finish-actions .scr-button:nth-child(2):hover:not(:disabled) {
+  background: #ffe066;
+}
+
+.scr-finish-actions .scr-button:nth-child(2):active:not(:disabled) {
+  box-shadow: 0 1px 0 #e0a800;
+}
+
+.scr-finish-screen .scr-button.secondary {
+  border: 3px solid #0d0d6b;
+  background: #fff;
+  box-shadow: none;
+  color: #0d0d6b;
+}
+
+.scr-finish-screen .scr-button.secondary:hover:not(:disabled) {
+  background: #f3f5ff;
+}
+
+.scr-finish-screen .scr-button:disabled {
+  border: 0;
+  background: #e3e6f1;
+  box-shadow: 0 4px 0 #d0d4e4;
+  color: #8f94b8;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.scr-finish-screen button:focus-visible {
+  outline: 4px solid #ffd23f;
+  outline-offset: 3px;
+}
+
+/* =========================================
+   TELAS MENORES
+========================================= */
+
+@media (max-width: 1199px) {
+  .scr-finish-actions {
+    grid-template-columns: repeat(2, minmax(0, 280px));
+  }
+}
+
+@media (max-width: 760px) {
+  .scr-finish-stats {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    margin-top: 28px;
+  }
+
+  .scr-finish-stat {
+    min-height: 0;
+    gap: 10px;
+    padding: 18px 20px;
+    border-radius: 22px;
+  }
+
+  .scr-finish-stat span {
+    font-size: 18px;
+  }
+
+  .scr-finish-message {
+    margin-top: 28px;
+  }
+
+  .scr-finish-actions {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    margin-top: 32px;
+  }
+
+  .scr-finish-screen .scr-button {
+    min-height: 64px;
+    font-size: 22px;
+  }
+}

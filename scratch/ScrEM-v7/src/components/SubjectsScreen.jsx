@@ -1,16 +1,11 @@
-import { useEffect, useState } from 'react';
 
-export default function SubjectsScreen() {
-  const [snapshot, setSnapshot] = useState(() => window.ScrEMAPI?.getSnapshot() ?? null);
-
-  useEffect(() => {
-    if (!window.ScrEMAPI) return undefined;
-    return window.ScrEMAPI.subscribe(setSnapshot);
-  }, []);
-
-  if (snapshot?.tela !== 'assuntos') return null;
-
-  const assuntos = snapshot.assuntos ?? [];
+export default function SubjectsScreen({
+  tela,
+  assuntos = [],
+  onSelecionarAssunto,
+  onVoltar
+}) {
+  if (tela !== 'assuntos') return null;
 
   return (
     <main className="scr-menu scr-react-menu" aria-label="Seleção de assuntos">
@@ -27,11 +22,15 @@ export default function SubjectsScreen() {
               key={assunto.id}
               type="button"
               style={{ '--subject-color': assunto.cor }}
-              onClick={() => window.ScrEMAPI?.selecionarAssunto(index)}
+              onClick={() => onSelecionarAssunto(index)}
               aria-label={`${assunto.nome}: ${assunto.mapasConcluidos} de ${assunto.totalMapas} mapas concluídos`}
             >
-              <span className="scr-subject-icon" aria-hidden="true">{assunto.icone}</span>
+              <span className="scr-subject-icon" aria-hidden="true">
+                {assunto.icone}
+              </span>
+
               <h2>{assunto.nome}</h2>
+
               <span
                 className="scr-progress-track"
                 role="progressbar"
@@ -42,10 +41,17 @@ export default function SubjectsScreen() {
               >
                 <span style={{ width: `${assunto.percentual}%` }} />
               </span>
-              <p>{assunto.mapasConcluidos} de {assunto.totalMapas} mapas concluídos</p>
+
+              <p>
+                {assunto.mapasConcluidos} de {assunto.totalMapas} mapas concluídos
+              </p>
+
               <strong>
                 ★ {assunto.estrelas} de {assunto.maxEstrelas}
-                {assunto.totalMapas > 0 && assunto.mapasConcluidos === assunto.totalMapas ? ' · completo' : ''}
+                {assunto.totalMapas > 0 &&
+                  assunto.mapasConcluidos === assunto.totalMapas
+                  ? ' · completo'
+                  : ''}
               </strong>
             </button>
           ))}
@@ -55,7 +61,7 @@ export default function SubjectsScreen() {
           <button
             className="scr-button secondary"
             type="button"
-            onClick={() => window.ScrEMAPI?.irPara('inicio')}
+            onClick={onVoltar}
           >
             Início
           </button>

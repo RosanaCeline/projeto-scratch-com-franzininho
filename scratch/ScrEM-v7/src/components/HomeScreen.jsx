@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 
 const ROBOT = [
   '....rr....', '....oo....', '..oooooo..', '.oyyyyyyo.', '.owwwwwwo.',
@@ -21,6 +20,7 @@ function PreviewBoard() {
           const type = obstacles.has(index)
             ? 'obstaculo'
             : terrain[index] || 'normal';
+
           return (
             <span className={`scr-preview-cell ${type}`} key={index}>
               {index === 9 ? '9' : ''}
@@ -28,6 +28,7 @@ function PreviewBoard() {
           );
         })}
       </div>
+
       <div className="scr-preview-robot" aria-hidden="true">
         <span>
           {ROBOT.flatMap((line, row) =>
@@ -36,7 +37,7 @@ function PreviewBoard() {
                 key={`${row}-${column}`}
                 style={pixel === '.' ? undefined : { '--pixel': ROBOT_COLORS[pixel] }}
               />
-            )),
+            ))
           )}
         </span>
       </div>
@@ -44,42 +45,59 @@ function PreviewBoard() {
   );
 }
 
-export default function HomeScreen({ active }) {
-  const [snapshot, setSnapshot] = useState(() => window.ScrEMAPI?.getSnapshot() ?? null);
-
-  useEffect(() => {
-    if (!active || !window.ScrEMAPI) return undefined;
-    const atualizar = (proximo) => setSnapshot(proximo);
-    const cancelar = window.ScrEMAPI.subscribe(atualizar);
-    return cancelar;
-  }, [active]);
-
-  if (!active || snapshot?.tela !== 'inicio') return null;
-
-  const api = window.ScrEMAPI;
+export default function HomeScreen({
+  active,
+  tela,
+  progresso,
+  som,
+  onIrPara,
+  onAlternarSom,
+  onTelaCheia
+}) {
+  if (!active || tela !== 'inicio') return null;
 
   return (
     <main className="scr-menu scr-react-menu" aria-label="Menu inicial do ScrEM">
       <section className="scr-page scr-home">
         <div className="scr-home-copy">
           <span className="scr-kicker">Pensamento computacional</span>
+
           <h1>ScrEM</h1>
+
           <p className="scr-lead">
             Programe o caminho do personagem, escolha as cores certas e resolva a missão de matemática.
           </p>
+
           <p className="scr-progress" aria-live="polite">
-            Mapas concluídos: <strong>{snapshot.mapasConcluidos} de {snapshot.totalMapas}</strong>
+            Mapas concluídos:{' '}
+            <strong>
+              {progresso.mapasConcluidos} de {progresso.totalMapas}
+            </strong>
             <span>·</span>
-            Estrelas: <strong>{snapshot.estrelas} de {snapshot.maxEstrelas}</strong>
+            Estrelas:{' '}
+            <strong>
+              {progresso.estrelas} de {progresso.maxEstrelas}
+            </strong>
           </p>
+
           <div className="scr-actions">
-            <button className="scr-button" type="button" onClick={() => api.irPara('assuntos')}>
+            <button
+              className="scr-button"
+              type="button"
+              onClick={() => onIrPara('assuntos')}
+            >
               Começar
             </button>
-            <button className="scr-button secondary" type="button" onClick={() => api.irPara('como')}>
+
+            <button
+              className="scr-button secondary"
+              type="button"
+              onClick={() => onIrPara('como')}
+            >
               Como jogar
             </button>
           </div>
+
           <p className="scr-shortcuts">
             Setas ou WASD: montar · Enter: executar · Backspace: desfazer · H: dica · F: tela cheia · M: som
           </p>
@@ -90,10 +108,19 @@ export default function HomeScreen({ active }) {
         </div>
 
         <div className="scr-top-actions">
-          <button className="scr-button ghost" type="button" onClick={api.alternarSom}>
-            Som: {snapshot.som ? 'ligado' : 'desligado'}
+          <button
+            className="scr-button ghost"
+            type="button"
+            onClick={onAlternarSom}
+          >
+            Som: {som ? 'ligado' : 'desligado'}
           </button>
-          <button className="scr-button ghost" type="button" onClick={api.telaCheia}>
+
+          <button
+            className="scr-button ghost"
+            type="button"
+            onClick={onTelaCheia}
+          >
             Tela cheia
           </button>
         </div>

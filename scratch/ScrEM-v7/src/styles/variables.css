@@ -1,0 +1,12 @@
+:root {
+  --cor-fundo: #eef0f7;
+  --cor-destaque: #0d0d6b;
+  --cor-texto: #0d0d6b;
+  --cor-muted: #6b6f9c;
+  --cor-linha: #d9dce6;
+  --cor-amarelo: #ffd23f;
+  --sombra-cartao: 0 5px 0 rgba(13, 13, 107, .07);
+
+  font-family: "Segoe UI", "Helvetica Neue", Roboto, Arial, system-ui, sans-serif;
+  color: var(--cor-texto);
+}

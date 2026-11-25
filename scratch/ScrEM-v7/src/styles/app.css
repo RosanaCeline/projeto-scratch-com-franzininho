@@ -1,15 +1,8 @@
-:root {
-  font-family: "Segoe UI", "Helvetica Neue", Roboto, Arial, system-ui, sans-serif;
-  color: #0d0d6b;
-  background: #eef0f7;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-}
-
-* { box-sizing: border-box; }
-html, body, #root { width: 100%; min-width: 320px; min-height: 100%; margin: 0; }
-body { min-height: 100vh; overflow-x: hidden; }
-button { font: inherit; }
+@import './variables.css';
+@import './base.css';
+@import './menus.css';
+@import './game.css';
+@import './finish.css';
 
 .scr-loading, .scr-error {
   position: fixed;
